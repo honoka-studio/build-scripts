@@ -43,5 +43,6 @@ git config --global user.name "$GIT_USERNAME"
 git config --global user.email "$GIT_EMAIL"
 git add repository/npm/$registry_name
 git add files/verdaccio/storage/$registry_name
+git add repository/npm/update_time.txt
 git commit -m "$commit_message"
 git push

@@ -73,7 +73,7 @@ local-publish() {
   fi
 
   cd $PROJECT_PATH/$1
-  cp -f ../maven-repo/files/verdaccio/.npmrc ./
+  cp -f ../maven-repo/files/verdaccio/.npmrc.honoka ./
 
   # 检查项目版本号
   echo "Check versions of $1:"
@@ -101,12 +101,12 @@ local-publish() {
   fi
 
   # 不将dev版本的包发布到release仓库
-  if [ "$is_development_version" == 'false' && "$project_is_development_version" == 'true' ]; then
+  if [ "$is_development_version" == 'false' ] && [ "$project_is_development_version" == 'true' ]; then
     echo 'Cannot publish project with development version to release registry!'
     exit 10
   fi
 
-  npm publish --registry=http://localhost:4873
+  npm publish --userconfig .npmrc.honoka --registry=http://localhost:4873
 }
 
 for project in "$@"; do
