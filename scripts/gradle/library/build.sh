@@ -32,7 +32,7 @@ projects_passed=$(echo "$check_version_of_projects_out" | grep -i 'results.proje
 dependencies_passed=$(echo "$check_version_of_projects_out" | grep -i 'results.dependenciesPassed=true') || true
 # -z表示字符串为空，-n表示字符串不为空
 if [ -n "$projects_passed" ] && [ -z "$dependencies_passed" ]; then
-  echo 'Projects with release version contain dependencies with development version!'
+  echo 'Some projects with release version contain dependencies with development version!'
   exit 10
 fi
 
