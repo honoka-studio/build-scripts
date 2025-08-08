@@ -2,6 +2,7 @@
 
 set -e
 
+# region 参数校验
 if [ -z "$PROJECT_PATH" ]; then
   if [ -z "$GITHUB_WORKSPACE" ]; then
     echo 'Must specify a project root path!'
@@ -13,8 +14,9 @@ fi
 
 cd "$PROJECT_PATH"
 PROJECT_PATH="$(pwd)"
-WORKSPACE_PATH="$(realpath ..)"
+WORKSPACE_PATH="$(readlink -fm ..)"
 echo "Working with project path: $PROJECT_PATH"
+# endregion
 
 # 读取当前Gradle项目根模块的版本信息，检查版本号是否符合要求
 chmod +x gradlew

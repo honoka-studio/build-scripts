@@ -2,22 +2,26 @@
 
 set -e
 
+# region 参数校验
 if [ -z "$PROJECT_PATH" ]; then
   if [ -z "$GITHUB_WORKSPACE" ]; then
     echo 'Must specify a project root path!'
     exit 10
   else
-    PROJECT_PATH="$GITHUB_WORKSPACE"
+    PROJECT_PATH="$GITHUB_WORKSPACE/repo"
   fi
 fi
 
 cd "$PROJECT_PATH"
 PROJECT_PATH="$(pwd)"
+WORKSPACE_PATH="$(readlink -fm ..)"
+echo "Working with project path: $PROJECT_PATH"
 
 if [ -z "$REMOTE_NPM_REGISTRY_URL" ]; then
   echo 'Must specify a remote npm registry URL!'
   exit 10
 fi
+# endregion
 
 # 检查根项目版本号
 root_version=$(cat package.json | grep '"version":')
@@ -35,13 +39,10 @@ fi
 
 echo "IS_DEVELOPMENT_VERSION=$is_development_version" >> "$GITHUB_OUTPUT"
 
-#
-# 带有~的路径如果被引号包围，则有时不会被解析为当前用户的home目录，而是当前目录下的“~”目录，
-# 因此不建议将带~的路径用引号包围起来。
-#
-local_registry_path=~/.local/share/verdaccio/storage
+local_registry_path="$(readlink -fm ~/.local/share/verdaccio/storage)"
 
-# 将存储npm仓库文件的Git仓库clone到项目根目录下
+# 将存储npm仓库文件的Git仓库clone到workspace下
+cd $WORKSPACE_PATH
 git clone "$REMOTE_NPM_REGISTRY_URL" maven-repo
 mkdir -p ~/.config/verdaccio
 mkdir -p $local_registry_path
@@ -73,7 +74,7 @@ local-publish() {
   fi
 
   cd $PROJECT_PATH/$1
-  cp -f ../maven-repo/files/verdaccio/.npmrc.honoka ./
+  cp -f $WORKSPACE_PATH/maven-repo/files/verdaccio/.npmrc.honoka ./
 
   # 检查项目版本号
   echo "Check versions of $1:"

@@ -2,6 +2,7 @@
 
 set -e
 
+# region 参数校验
 if [ -z "$PROJECT_PATH" ]; then
   if [ -z "$GITHUB_WORKSPACE" ]; then
     echo 'Must specify a project root path!'
@@ -13,7 +14,7 @@ fi
 
 cd "$PROJECT_PATH"
 PROJECT_PATH="$(pwd)"
-WORKSPACE_PATH="$(realpath ..)"
+WORKSPACE_PATH="$(readlink -fm ..)"
 echo "Working with project path: $PROJECT_PATH"
 
 if [ -z "$REMOTE_MAVEN_REPO_URL" ]; then
@@ -25,6 +26,7 @@ if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_EMAIL" ]; then
   echo 'Must specify the Git username and email!'
   exit 10
 fi
+# endregion
 
 PROJECT_NAME="$(basename "$WORKSPACE_PATH")"
 
