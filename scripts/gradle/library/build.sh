@@ -21,7 +21,7 @@ echo "Working with project path: $PROJECT_PATH"
 # 读取当前Gradle项目根模块的版本信息，检查版本号是否符合要求
 chmod +x gradlew
 ./gradlew checkVersionOfProjects
-check_version_of_projects_out=$(./gradlew checkVersionOfProjects)
+check_version_of_projects_out="$(./gradlew checkVersionOfProjects)"
 
 #
 # 检查版本号
