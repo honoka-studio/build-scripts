@@ -7,12 +7,14 @@ if [ -z "$PROJECT_PATH" ]; then
     echo 'Must specify a project root path!'
     exit 10
   else
-    PROJECT_PATH="$GITHUB_WORKSPACE"
+    PROJECT_PATH="$GITHUB_WORKSPACE/repo"
   fi
 fi
 
 cd "$PROJECT_PATH"
 PROJECT_PATH="$(pwd)"
+WORKSPACE_PATH="$(realpath ..)"
+echo "Working with project path: $PROJECT_PATH"
 
 if [ -z "$REMOTE_MAVEN_REPO_URL" ]; then
   echo 'Must specify a remote Maven repository URL!'
@@ -24,9 +26,10 @@ if [ -z "$GIT_USERNAME" ] || [ -z "$GIT_EMAIL" ]; then
   exit 10
 fi
 
-PROJECT_NAME="$(basename "$PROJECT_PATH")"
+PROJECT_NAME="$(basename "$WORKSPACE_PATH")"
 
-# 将存储Maven仓库文件的Git仓库clone到项目根目录下
+# 将存储Maven仓库文件的Git仓库clone到workspace下
+cd $WORKSPACE_PATH
 git clone "$REMOTE_MAVEN_REPO_URL" maven-repo
 
 # 解压maven-repo.tar.gz
@@ -35,7 +38,7 @@ tar -zxf maven-repo.tar.gz
 cd ..
 
 #
-# 将[项目根目录]/maven-repo-changes/maven-repo/repository下所有内容，复制到[项目根目录]/maven-repo
+# 将[workspace]/maven-repo-changes/maven-repo/repository下所有内容，复制到[workspace]/maven-repo
 # /repository下，并替换已存在的内容。
 #
 cp -rf maven-repo-changes/maven-repo/repository/. maven-repo/repository/

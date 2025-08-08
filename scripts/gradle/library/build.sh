@@ -7,12 +7,14 @@ if [ -z "$PROJECT_PATH" ]; then
     echo 'Must specify a project root path!'
     exit 10
   else
-    PROJECT_PATH="$GITHUB_WORKSPACE"
+    PROJECT_PATH="$GITHUB_WORKSPACE/repo"
   fi
 fi
 
 cd "$PROJECT_PATH"
 PROJECT_PATH="$(pwd)"
+WORKSPACE_PATH="$(realpath ..)"
+echo "Working with project path: $PROJECT_PATH"
 
 # 读取当前Gradle项目根模块的版本信息，检查版本号是否符合要求
 chmod +x gradlew
@@ -47,7 +49,7 @@ else
   is_development_version=false
 fi
 
-mkdir -p $PROJECT_PATH/maven-repo/repository/$repository_name
+mkdir -p $WORKSPACE_PATH/maven-repo/repository/$repository_name
 echo "IS_DEVELOPMENT_VERSION=$is_development_version" >> "$GITHUB_OUTPUT"
 
 gradle-publish() {
@@ -55,7 +57,7 @@ gradle-publish() {
   if [ -n "$1" ]; then
     task_name=":$1:$task_name"
   fi
-  ./gradlew -PremoteMavenRepositoryUrl=$PROJECT_PATH/maven-repo/repository/$repository_name \
+  ./gradlew -PremoteMavenRepositoryUrl=$WORKSPACE_PATH/maven-repo/repository/$repository_name \
             -PisDevelopmentRepository=$is_development_version $task_name
 }
 
@@ -74,6 +76,7 @@ echo -e '\n\nPublishing all projects...\n'
 gradle-publish
 
 # 将maven-repo/repository目录打包，然后将tar移动到另一个单独的目录中
+cd $WORKSPACE_PATH
 find maven-repo/repository -type f -name 'maven-metadata.xml*' -delete
 tar -zcf maven-repo.tar.gz maven-repo/repository
 mkdir maven-repo-changes
